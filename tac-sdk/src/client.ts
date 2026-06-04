@@ -6,7 +6,19 @@ export class TACClient {
 
   constructor(config: TACConfig) {
     this.apiKey = config.apiKey
-    this.baseUrl = config.baseUrl || process.env.TAC_API_BASE_URL || ""
+    
+    // Determine baseUrl with smart defaults
+    if (config.baseUrl) {
+      this.baseUrl = config.baseUrl
+    } else if (process.env.TAC_API_BASE_URL) {
+      this.baseUrl = process.env.TAC_API_BASE_URL
+    } else if (process.env.NODE_ENV === "production") {
+      // Production: use deployed backend
+      this.baseUrl = "https://api.convo-app.online"
+    } else {
+      // Development: default to localhost backend
+      this.baseUrl = "http://localhost:4000"
+    }
   }
 
   async capture(payload: CapturePayload) {
